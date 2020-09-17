@@ -17,19 +17,15 @@
 // this is used.
 #define INA260_OVER_CURRENT_LIMIT 0.12 // amps
 
-// define the INA260 instance, giving the I2C address (4-bits), in this case 0
-static INA260 ina260(0);
-// alternatively you can use two constants representing how the address pins
-// on the device are wired (see "Serial Bus Address" in the datasheet).
-//static INA260 ina260(INA260::ADDR_GND, INA260::ADDR_GND);
+INA260 ina260();
 
 // this variable is used as a flag to signal when an interrupt is
 // received, indicating that an alert has been triggered by the INA260
-static bool alertPending = false;
+bool alertPending = false;
 
 // interrupt service routine called when the INA260_ALERT_PIN goes low,
 // indicating that the INA260 has an alert.
-static void onAlertPinLow(void) {
+void onAlertPinLow(void) {
   // to avoid doing I2C/serial communications inside the interrupt service
   // routine, we'll just flag the alert and process it in the main
   // loop() function.
@@ -40,11 +36,6 @@ void setup() {
   // for this demo, the readings will be printed over serial, so the Serial
   // library is initialized here.
   Serial.begin(9600);
-
-  // ---
-  // Call the begin() function to initialize the instance. This will also
-  // initialize the Wire/I2C library.
-  ina260.begin();
 
   // ---
   // this part will configure the INA260 averaging mode and ADC sampling
@@ -152,11 +143,5 @@ void loop() {
     digitalWrite(INA260_LED_PIN, LOW);
   }
 
-  // print the readings so they can be used by the Serial Plotter.
-  Serial.print(amps);
-  Serial.print("\t");
-  Serial.print(volts);
-  Serial.print("\t");
-  Serial.println(watts);
-
+  Log.info("amps: %f, volts: %f, watts: %f", amps, volts, watts);
 }
